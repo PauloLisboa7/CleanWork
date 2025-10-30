@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { TextField, Button, Box, Typography, Grid } from '@mui/material';
-import { MapContainer, TileLayer, useMapEvents } from 'react-leaflet';
+import { TextField, Button, Box, Typography, Grid, Alert } from '@mui/material';
+import { MapContainer, TileLayer, useMapEvents, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -21,7 +21,7 @@ const LocationMarker = ({ position, setPosition }) => {
 
   return position === null ? null : (
     <Marker position={position}>
-      <Popup>Clique no mapa para definir a localização</Popup>
+      <Popup>📍 Localização selecionada</Popup>
     </Marker>
   );
 };
@@ -31,6 +31,7 @@ const DemandaForm = ({ onAddDemanda }) => {
   const [descricao, setDescricao] = useState('');
   const [bairro, setBairro] = useState('');
   const [position, setPosition] = useState(null);
+  const [success, setSuccess] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -48,6 +49,8 @@ const DemandaForm = ({ onAddDemanda }) => {
     setDescricao('');
     setBairro('');
     setPosition(null);
+    setSuccess(true);
+    setTimeout(() => setSuccess(false), 3000);
   };
 
   // Coordenadas centrais de São Luís (aproximadas)
@@ -55,62 +58,90 @@ const DemandaForm = ({ onAddDemanda }) => {
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
-      <TextField
-        margin="normal"
-        required
-        fullWidth
-        id="titulo"
-        label="Título da Demanda"
-        name="titulo"
-        value={titulo}
-        onChange={(e) => setTitulo(e.target.value)}
-      />
-      <TextField
-        margin="normal"
-        required
-        fullWidth
-        id="descricao"
-        label="Descrição"
-        name="descricao"
-        multiline
-        rows={4}
-        value={descricao}
-        onChange={(e) => setDescricao(e.target.value)}
-      />
-      <TextField
-        margin="normal"
-        fullWidth
-        id="bairro"
-        label="Bairro"
-        name="bairro"
-        value={bairro}
-        onChange={(e) => setBairro(e.target.value)}
-      />
-      <Typography variant="body2" sx={{ mt: 2, mb: 1 }}>
-        Clique no mapa para definir a localização (opcional):
-      </Typography>
-      <div style={{ height: '200px', width: '100%', marginBottom: '16px' }}>
-        <MapContainer center={center} zoom={12} style={{ height: '100%', width: '100%' }}>
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          />
-          <LocationMarker position={position} setPosition={setPosition} />
-        </MapContainer>
-      </div>
-      {position && (
-        <Typography variant="body2" color="textSecondary">
-          Localização selecionada: {position.lat.toFixed(4)}, {position.lng.toFixed(4)}
-        </Typography>
+      {success && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          ✅ Demanda criada com sucesso!
+        </Alert>
       )}
-      <Button
-        type="submit"
-        fullWidth
-        variant="contained"
-        sx={{ mt: 3, mb: 2 }}
-      >
-        Criar Demanda
-      </Button>
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <TextField
+            required
+            fullWidth
+            id="titulo"
+            label="Título da Demanda"
+            name="titulo"
+            value={titulo}
+            onChange={(e) => setTitulo(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            required
+            fullWidth
+            id="descricao"
+            label="Descrição Detalhada"
+            name="descricao"
+            multiline
+            rows={3}
+            value={descricao}
+            onChange={(e) => setDescricao(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            id="bairro"
+            label="Bairro (opcional)"
+            name="bairro"
+            value={bairro}
+            onChange={(e) => setBairro(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
+            📍 Clique no mapa para definir a localização (opcional):
+          </Typography>
+          <Box sx={{ height: '250px', width: '100%', borderRadius: 2, overflow: 'hidden', boxShadow: 1, mb: 2 }}>
+            <MapContainer center={center} zoom={12} style={{ height: '100%', width: '100%' }}>
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              />
+              <LocationMarker position={position} setPosition={setPosition} />
+            </MapContainer>
+          </Box>
+          {position && (
+            <Alert severity="info" sx={{ mb: 2 }}>
+              Localização selecionada: {position.lat.toFixed(4)}, {position.lng.toFixed(4)}
+            </Alert>
+          )}
+        </Grid>
+        <Grid item xs={12}>
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            size="large"
+            sx={{
+              mt: 1,
+              mb: 1,
+              py: 1.5,
+              fontSize: '1.1rem',
+              fontWeight: 600,
+              background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
+              '&:hover': {
+                background: 'linear-gradient(45deg, #5a6fd8 30%, #6a4190 90%)',
+              }
+            }}
+          >
+            🚀 Criar Demanda
+          </Button>
+        </Grid>
+      </Grid>
     </Box>
   );
 };

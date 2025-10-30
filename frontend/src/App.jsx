@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { CssBaseline, AppBar, Toolbar, Typography, IconButton, Container, Grid, Paper, Box } from '@mui/material';
-import { Brightness4, Brightness7 } from '@mui/icons-material';
+import { CssBaseline, AppBar, Toolbar, Typography, IconButton, Container, Grid, Paper, Box, Card, CardContent } from '@mui/material';
+import { Brightness4, Brightness7, Map, Assignment, Add } from '@mui/icons-material';
 import MapComponent from './components/MapComponent';
 import DemandasList from './components/DemandasList';
 import DemandaForm from './components/DemandaForm';
@@ -15,6 +15,43 @@ const App = () => {
   const theme = createTheme({
     palette: {
       mode: darkMode ? 'dark' : 'light',
+      primary: {
+        main: '#667eea',
+      },
+      secondary: {
+        main: '#764ba2',
+      },
+    },
+    typography: {
+      fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+      h4: {
+        fontWeight: 600,
+      },
+      h5: {
+        fontWeight: 500,
+      },
+    },
+    shape: {
+      borderRadius: 12,
+    },
+    components: {
+      MuiPaper: {
+        styleOverrides: {
+          root: {
+            borderRadius: 12,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+          },
+        },
+      },
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            borderRadius: 8,
+            textTransform: 'none',
+            fontWeight: 500,
+          },
+        },
+      },
     },
   });
 
@@ -77,42 +114,66 @@ const App = () => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            CleanWork - Transparência e Participação Comunitária em São Luís
-          </Typography>
-          <IconButton color="inherit" onClick={handleToggleDarkMode}>
-            {darkMode ? <Brightness7 /> : <Brightness4 />}
-          </IconButton>
-        </Toolbar>
-      </AppBar>
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={8}>
-            <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-              <Typography variant="h5" gutterBottom>
-                Mapa de Obras Públicas
+      <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', py: 2 }}>
+        <AppBar position="static" sx={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)', borderRadius: 2, mx: 2, mt: 1 }}>
+          <Toolbar>
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 600 }}>
+              🏗️ CleanWork - Transparência e Participação Comunitária em São Luís
+            </Typography>
+            <IconButton color="inherit" onClick={handleToggleDarkMode} sx={{ ml: 1 }}>
+              {darkMode ? <Brightness7 /> : <Brightness4 />}
+            </IconButton>
+          </Toolbar>
+        </AppBar>
+        <Container maxWidth="xl" sx={{ mt: 3, mb: 4 }}>
+          <Grid container spacing={4}>
+            <Grid item xs={12}>
+              <Typography variant="h4" align="center" sx={{ mb: 4, color: 'white', fontWeight: 700 }}>
+                Visualize e Participe das Obras Públicas
               </Typography>
-              <MapComponent obras={obras} demandas={demandas} />
-            </Paper>
+            </Grid>
+            <Grid item xs={12} lg={8}>
+              <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'rgba(255,255,255,0.95)' }}>
+                <CardContent sx={{ flexGrow: 1, p: 0 }}>
+                  <Box sx={{ p: 3, pb: 1 }}>
+                    <Typography variant="h5" gutterBottom sx={{ display: 'flex', alignItems: 'center', fontWeight: 600 }}>
+                      <Map sx={{ mr: 1, color: theme.palette.primary.main }} />
+                      Mapa de Obras Públicas
+                    </Typography>
+                  </Box>
+                  <Box sx={{ px: 3, pb: 3 }}>
+                    <MapComponent obras={obras} demandas={demandas} />
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} lg={4}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                <Card sx={{ background: 'rgba(255,255,255,0.95)' }}>
+                  <CardContent>
+                    <Typography variant="h5" gutterBottom sx={{ display: 'flex', alignItems: 'center', fontWeight: 600 }}>
+                      <Add sx={{ mr: 1, color: theme.palette.secondary.main }} />
+                      Criar Nova Demanda
+                    </Typography>
+                    <DemandaForm onAddDemanda={handleAddDemanda} />
+                  </CardContent>
+                </Card>
+                <Card sx={{ background: 'rgba(255,255,255,0.95)', flexGrow: 1 }}>
+                  <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                    <Typography variant="h5" gutterBottom sx={{ display: 'flex', alignItems: 'center', fontWeight: 600 }}>
+                      <Assignment sx={{ mr: 1, color: theme.palette.primary.main }} />
+                      Lista de Demandas
+                    </Typography>
+                    <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
+                      <DemandasList demandas={demandas} onRemoveLocalizacao={handleRemoveLocalizacao} />
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Box>
+            </Grid>
           </Grid>
-          <Grid item xs={12} md={4}>
-            <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', mb: 2 }}>
-              <Typography variant="h5" gutterBottom>
-                Criar Nova Demanda
-              </Typography>
-              <DemandaForm onAddDemanda={handleAddDemanda} />
-            </Paper>
-            <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-              <Typography variant="h5" gutterBottom>
-                Lista de Demandas
-              </Typography>
-              <DemandasList demandas={demandas} onRemoveLocalizacao={handleRemoveLocalizacao} />
-            </Paper>
-          </Grid>
-        </Grid>
-      </Container>
+        </Container>
+      </Box>
     </ThemeProvider>
   );
 };
