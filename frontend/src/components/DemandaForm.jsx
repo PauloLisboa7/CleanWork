@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TextField, Button, Box, Typography, Grid, Alert } from '@mui/material';
+import { TextField, Button, Box, Typography, Grid, Alert, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { MapContainer, TileLayer, useMapEvents, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -26,7 +26,7 @@ const LocationMarker = ({ position, setPosition }) => {
   );
 };
 
-const DemandaForm = ({ onAddDemanda }) => {
+const DemandaForm = ({ onAddDemanda, bairros = [] }) => {
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [bairro, setBairro] = useState('');
@@ -91,15 +91,29 @@ const DemandaForm = ({ onAddDemanda }) => {
           />
         </Grid>
         <Grid item xs={12}>
-          <TextField
-            fullWidth
-            id="bairro"
-            label="Bairro (opcional)"
-            name="bairro"
-            value={bairro}
-            onChange={(e) => setBairro(e.target.value)}
-            sx={{ mb: 2 }}
-          />
+          <FormControl fullWidth sx={{ mb: 2 }}>
+            <InputLabel id="bairro-label">Bairro (opcional)</InputLabel>
+            <Select
+              labelId="bairro-label"
+              id="bairro-select"
+              value={bairro}
+              label="Bairro (opcional)"
+              onChange={(e) => {
+                const value = e.target.value;
+                setBairro(value);
+                // Ao selecionar bairro, se tivermos coordenadas conhecidas, atualiza posição (sem alterar zoom)
+                const found = bairros.find((b) => b.name === value);
+                if (found && found.lat && found.lng) {
+                  setPosition({ lat: found.lat, lng: found.lng });
+                }
+              }}
+            >
+              <MenuItem value="">Nenhum</MenuItem>
+              {bairros.map((b) => (
+                <MenuItem key={b.name} value={b.name}>{b.name}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Grid>
         <Grid item xs={12}>
           <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>

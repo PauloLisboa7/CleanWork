@@ -1,19 +1,21 @@
 import React from 'react';
-import { List, ListItem, ListItemText, ListItemSecondaryAction, IconButton, Typography, Chip, Box, Divider } from '@mui/material';
+import { List, ListItem, ListItemText, ListItemSecondaryAction, IconButton, Typography, Chip, Box, Divider, Pagination } from '@mui/material';
 import { DeleteForever, LocationOn, Schedule } from '@mui/icons-material';
 
-const DemandasList = ({ demandas, onRemoveLocalizacao }) => {
+const DemandasList = ({ demandas, onRemoveLocalizacao, onSelectDemanda, page = 1, limit = 10, total = 0, onPageChange }) => {
+  const totalPages = Math.max(1, Math.ceil((total || demandas.length) / limit));
+
   return (
     <Box sx={{ maxHeight: '400px', overflow: 'auto' }}>
       <List sx={{ py: 0 }}>
-        {demandas.length === 0 ? (
+        {(!demandas || demandas.length === 0) ? (
           <Typography variant="body1" color="textSecondary" sx={{ textAlign: 'center', py: 4 }}>
             📝 Nenhuma demanda encontrada.
           </Typography>
         ) : (
           demandas.map((demanda, index) => (
-            <React.Fragment key={demanda.id}>
-              <ListItem alignItems="flex-start" sx={{ py: 2 }}>
+        <React.Fragment key={demanda.id}>
+          <ListItem alignItems="flex-start" sx={{ py: 2, cursor: demanda.latitude && demanda.longitude ? 'pointer' : 'default' }} onClick={() => (demanda.latitude && demanda.longitude && onSelectDemanda ? onSelectDemanda({ lat: demanda.latitude, lng: demanda.longitude }) : null)}>
                 <ListItemText
                   primary={
                     <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main', mb: 1 }}>
@@ -53,7 +55,7 @@ const DemandasList = ({ demandas, onRemoveLocalizacao }) => {
                     <IconButton
                       edge="end"
                       aria-label="remover localização"
-                      onClick={() => onRemoveLocalizacao(demanda.id)}
+                      onClick={(e) => { e.stopPropagation(); onRemoveLocalizacao(demanda.id); }}
                       sx={{ color: 'error.main' }}
                     >
                       <DeleteForever />
@@ -66,6 +68,11 @@ const DemandasList = ({ demandas, onRemoveLocalizacao }) => {
           ))
         )}
       </List>
+      {totalPages > 1 && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
+          <Pagination count={totalPages} page={page} onChange={(e, v) => onPageChange && onPageChange(v)} color="primary" />
+        </Box>
+      )}
     </Box>
   );
 };
